@@ -123,22 +123,36 @@ Before any ML model is added to the project, ALL of the following must be true:
 
 ### Baseline Model Results (2026-09-17)
 
-- **Model:** Logistic regression (class_weight='balanced', max_iter=500)
 - **Split:** Temporal — train before 2026 (71 samples), test 2026+ (1762 samples)
 - **Features:** Type, RoadClass, DirectionsAffected, WorkPeriod, District, Latitude, Longitude, Duration_days, SpecialEvent
 
-| Metric | Baseline (always None) | Logistic Regression |
-|---|---|---|
-| F1-score (macro) | 0.2955 | **0.8299** |
-| Accuracy | 80% | **94%** |
+| Model | F1-score (macro) | Accuracy | Improvement |
+|---|---|---|---|
+| Baseline (always None) | 0.2955 | 80% | — |
+| Logistic Regression | 0.8299 | 94% | +0.53 |
+| **XGBoost** | **0.9761** | **99%** | **+0.68** |
+
+#### Logistic Regression
 
 | Class | Precision | Recall | F1 |
 |---|---|---|---|
-| High | 0.00 | 0.00 | 0.00 → **0.66 / 0.82 / 0.73** |
-| Low | 0.00 | 0.00 | 0.00 → **0.92 / 0.66 / 0.77** |
-| None | 0.80 | 1.00 | 0.89 → **0.98 / 1.00 / 0.99** |
+| High | 0.66 | 0.82 | 0.73 |
+| Low | 0.92 | 0.66 | 0.77 |
+| None | 0.98 | 1.00 | 0.99 |
 
 **Top features:** WorkPeriod (1.72), Type (0.46), Duration_days (0.42), RoadClass (0.34), Latitude (0.18)
+
+#### XGBoost (Best Model)
+
+| Class | Precision | Recall | F1 |
+|---|---|---|---|
+| High | 1.00 | 0.94 | 0.97 |
+| Low | 0.96 | 0.97 | 0.96 |
+| None | 1.00 | 1.00 | 1.00 |
+
+**Top features:** WorkPeriod (0.63), RoadClass (0.33), Duration_days (0.03), Longitude (0.01)
+
+**Key insight:** XGBoost relies heavily on WorkPeriod (63%) and RoadClass (33%) — two features that account for 96% of predictions. This suggests that the scheduling pattern (Continuous vs Daily/Weekdays) and road classification are the strongest predictors of accessibility impact.
 
 ## Recommended Next Steps
 
@@ -181,23 +195,30 @@ Analyzed Toronto Pedestrian Network (87,105 edges) against 1,834 closures:
 
 **Conclusion:** High-impact closures are in areas with **44% more pedestrian infrastructure** than no-impact closures (1,574m vs 1,064m). This confirms that `CurrImpact` captures real pedestrian accessibility concerns — closures near more sidewalks and pedestrian routes have higher impact labels.
 
-### Step 4: Model selection (only after Steps 1–3)
+### ~~Step 4: Model selection (only after Steps 1–3)~~ ✅ DONE
 
-If baseline model performs poorly AND external validation shows promise:
-- Try gradient boosting (XGBoost/LightGBM) for tabular data
-- Consider neural networks only if >10K labeled examples exist
-- AutoML only if feature engineering is complex
+**Result:** XGBoost achieves F1=0.9761 (99% accuracy), outperforming logistic regression (F1=0.8299) by +0.15.
 
-**Not recommended now:** HuggingFace, LLMOps, MLOps, Kafka, MongoDB, app pilots — these are operational concerns that come AFTER a validated model exists.
+**Model selection rationale:**
+- XGBoost is the right choice for this tabular dataset (9 features, 1,834 samples)
+- The model is interpretable: WorkPeriod (63%) and RoadClass (33%) dominate predictions
+- No need for neural networks (only 1,834 samples, <10K threshold)
+- No need for AutoML (feature engineering is straightforward)
+
+**What was NOT needed:**
+- HuggingFace/LLMOps — not applicable to tabular data
+- MLOps — not needed until production deployment
+- Kafka/MongoDB — operational concerns, not model concerns
+- App pilots — premature without validated model
 
 ## Consequences
 
 ### If this ADR is accepted
 
-- The notebook can add a baseline ML section (logistic regression on `CurrImpact`)
-- The project gains a documented prediction target and validation strategy
-- Future ML work has clear gate conditions to satisfy
-- The team can make informed decisions about model complexity
+- The notebook contains validated ML models (logistic regression + XGBoost)
+- The project has a documented prediction target, validation strategy, and model comparison
+- Future ML work has clear gate conditions and model selection guidance
+- The team can make informed decisions about deployment vs. further research
 
 ### If this ADR is rejected
 
