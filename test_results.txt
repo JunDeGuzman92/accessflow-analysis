@@ -1,0 +1,112 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\junbu\Documents\accessflow-toronto\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\junbu\Documents\accessflow-toronto
+plugins: anyio-4.15.1
+collecting ... collected 84 items
+
+tests/test_phase10_profile.py::Phase10ProfileTests::test_pedestrian_profile_uses_read_only_metadata PASSED [  1%]
+tests/test_phase10_profile.py::Phase10ProfileTests::test_road_profile_reports_counts_and_geometry PASSED [  2%]
+tests/test_phase11_matching.py::Phase11MatchingTests::test_crs_conversion_changes_coordinates_to_metric_units PASSED [  3%]
+tests/test_phase11_matching.py::Phase11MatchingTests::test_direct_intersection_is_high_confidence PASSED [  4%]
+tests/test_phase11_matching.py::Phase11MatchingTests::test_distance_matching_rejects_geographic_crs PASSED [  5%]
+tests/test_phase11_matching.py::Phase11MatchingTests::test_malformed_polyline_point_fallback_is_low_confidence PASSED [  7%]
+tests/test_phase11_matching.py::Phase11MatchingTests::test_proximity_thresholds_are_explicit PASSED [  8%]
+tests/test_phase11_matching.py::Phase11MatchingTests::test_summary_counts_are_threshold_scoped PASSED [  9%]
+tests/test_phase12_graph.py::Phase12GraphTests::test_crossing_lines_without_shared_endpoints_remain_disconnected PASSED [ 10%]
+tests/test_phase12_graph.py::Phase12GraphTests::test_endpoint_snapping_changes_components_only_at_explicit_tolerance PASSED [ 11%]
+tests/test_phase12_graph.py::Phase12GraphTests::test_graph_preserves_source_edge_traceability PASSED [ 13%]
+tests/test_phase12_graph.py::Phase12GraphTests::test_hard_closure_and_penalized_edge_change_paths PASSED [ 14%]
+tests/test_phase12_graph.py::Phase12GraphTests::test_metric_graph_rejects_geographic_distance_by_contract PASSED [ 15%]
+tests/test_phase12_graph.py::Phase12GraphTests::test_multipart_geometry_becomes_traceable_part_edges PASSED [ 16%]
+tests/test_phase12_graph.py::Phase12GraphTests::test_zero_tolerance_merges_only_exactly_equal_endpoints PASSED [ 17%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_assessment_is_repeatable PASSED [ 19%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_cli_evaluates_json_input PASSED [ 20%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_distribution_preserves_missing_values PASSED [ 21%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_fallback_evidence_is_low_independently_of_severe_impact PASSED [ 22%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_high_classification_and_boundary PASSED [ 23%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_low_classification PASSED [ 25%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_missing_network_metrics_are_not_silently_zero PASSED [ 26%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_moderate_classification PASSED [ 27%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_negative_metrics_are_rejected PASSED [ 28%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_no_candidate_is_insufficient_evidence PASSED [ 29%]
+tests/test_phase13_impact.py::Phase13ImpactTests::test_severe_connectivity_loss_overrides_missing_detour PASSED [ 30%]
+tests/test_phase14_calibration.py::Phase14CalibrationTests::test_cohort_selection_is_repeatable_and_includes_fallback PASSED [ 32%]
+tests/test_phase14_calibration.py::Phase14CalibrationTests::test_csv_schema_preserves_none_as_blank PASSED [ 33%]
+tests/test_phase14_calibration.py::Phase14CalibrationTests::test_distributions_and_crosstab_keep_not_evaluated PASSED [ 34%]
+tests/test_phase14_calibration.py::Phase14CalibrationTests::test_ml_target_is_rejected_without_evaluated_labels PASSED [ 35%]
+tests/test_phase14_calibration.py::Phase14CalibrationTests::test_post_simulation_target_is_flagged_for_leakage PASSED [ 36%]
+tests/test_phase15_replacement.py::Phase15ReplacementTests::test_aggregation_preserves_disconnected_missing_metrics PASSED [ 38%]
+tests/test_phase15_replacement.py::Phase15ReplacementTests::test_bridge_explicitly_has_no_numeric_replacement PASSED [ 39%]
+tests/test_phase15_replacement.py::Phase15ReplacementTests::test_empty_scenario_is_insufficient_evidence PASSED [ 40%]
+tests/test_phase15_replacement.py::Phase15ReplacementTests::test_repeatability_and_metric_crs_contract PASSED [ 41%]
+tests/test_phase15_replacement.py::Phase15ReplacementTests::test_set_removal_reports_boundary_fragmentation PASSED [ 42%]
+tests/test_phase15_replacement.py::Phase15ReplacementTests::test_single_edge_has_replacement_path_and_traceability PASSED [ 44%]
+tests/test_phase16_api.py::Phase16ApiTests::test_detail_matches_and_impact_preserve_values PASSED [ 45%]
+tests/test_phase16_api.py::Phase16ApiTests::test_health_and_openapi PASSED [ 46%]
+tests/test_phase16_api.py::Phase16ApiTests::test_list_pagination_filter_and_invalid_query PASSED [ 47%]
+tests/test_phase16_api.py::Phase16ApiTests::test_not_evaluated_is_not_converted_to_low_or_zero PASSED [ 48%]
+tests/test_phase16_api.py::Phase16ApiTests::test_summary_has_provenance PASSED [ 50%]
+tests/test_phase16_api.py::Phase16ApiTests::test_unavailable_artifact_has_structured_503 PASSED [ 51%]
+tests/test_phase16_api.py::Phase16ApiTests::test_unknown_restriction_has_structured_404 PASSED [ 52%]
+tests/test_phase16_service.py::Phase16ServiceTests::test_detail_preserves_not_evaluated_without_zero PASSED [ 53%]
+tests/test_phase16_service.py::Phase16ServiceTests::test_list_paginates_and_filters PASSED [ 54%]
+tests/test_phase16_service.py::Phase16ServiceTests::test_matches_impacts_and_summary PASSED [ 55%]
+tests/test_phase16_service.py::Phase16ServiceTests::test_unknown_values_and_missing_artifacts PASSED [ 57%]
+tests/test_phase17_postgis.py::Phase17PostGISTests::test_repository_round_trip_and_idempotent_load SKIPPED [ 58%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_fallback_match_is_preserved_with_low_confidence PASSED [ 59%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_geometry_normalizer_rejects_placeholder_and_malformed_coordinates PASSED [ 60%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_linestring_and_multilinestring_geometry_are_supported PASSED [ 61%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_malformed_source_geometry_is_null_and_status_is_partial PASSED [ 63%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_not_evaluated_and_insufficient_evidence_are_preserved PASSED [ 64%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_partial_geometry_preserves_null_and_proximity_metadata PASSED [ 65%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_unknown_restriction_returns_structured_404 PASSED [ 66%]
+tests/test_phase21_spatial_api.py::Phase21SpatialApiTests::test_valid_point_geometry_serializes_as_geojson PASSED [ 67%]
+tests/test_phase22_spatial_artifacts.py::Phase22SpatialArtifactTests::test_artifact_serialization_is_deterministic_and_json_safe PASSED [ 69%]
+tests/test_phase22_spatial_artifacts.py::Phase22SpatialArtifactTests::test_malformed_restriction_geometry_remains_null PASSED [ 70%]
+tests/test_phase22_spatial_artifacts.py::Phase22SpatialArtifactTests::test_missing_matched_geometry_remains_null PASSED [ 71%]
+tests/test_phase22_spatial_artifacts.py::Phase22SpatialArtifactTests::test_repository_reads_sidecar_geometry PASSED [ 72%]
+tests/test_phase22_spatial_artifacts.py::Phase22SpatialArtifactTests::test_valid_restriction_and_matched_geometry_preserve_epsg4326_provenance PASSED [ 73%]
+tests/test_phase24_artifact_generation.py::Phase24ArtifactGenerationTests::test_generated_artifact_validates_and_preserves_provenance PASSED [ 75%]
+tests/test_phase24_artifact_generation.py::Phase24ArtifactGenerationTests::test_generation_is_deterministic_and_integrity_is_reported PASSED [ 76%]
+tests/test_phase24_artifact_generation.py::Phase24ArtifactGenerationTests::test_validator_rejects_wrong_crs_and_unsupported_geometry PASSED [ 77%]
+tests/test_phase25_fixtures.py::Phase25FixtureTests::test_changed_fixture_fails_loudly PASSED [ 78%]
+tests/test_phase25_fixtures.py::Phase25FixtureTests::test_copied_processed_files_match_snapshots_byte_for_byte PASSED [ 79%]
+tests/test_phase25_fixtures.py::Phase25FixtureTests::test_manifest_hashes_and_row_counts_are_valid PASSED [ 80%]
+tests/test_phase25_fixtures.py::Phase25FixtureTests::test_missing_fixture_fails_loudly PASSED [ 82%]
+tests/test_phase25_hosted_runtime.py::Phase25HostedRuntimeTests::test_artifact_integrity_counts_are_stable SKIPPED [ 83%]
+tests/test_phase25_hosted_runtime.py::Phase25HostedRuntimeTests::test_available_record_delivers_authoritative_geometry_and_provenance SKIPPED [ 84%]
+tests/test_phase25_hosted_runtime.py::Phase25HostedRuntimeTests::test_not_available_record_has_no_geometry_or_demo_substitution SKIPPED [ 85%]
+tests/test_phase25_hosted_runtime.py::Phase25HostedRuntimeTests::test_postgis_repository_and_artifact_are_available SKIPPED [ 86%]
+tests/test_phase26_ml.py::TestImpactPredictor::test_fit_and_predict PASSED [ 88%]
+tests/test_phase26_ml.py::TestImpactPredictor::test_predict_returns_results PASSED [ 89%]
+tests/test_phase26_ml.py::TestImpactPredictor::test_save_and_load PASSED [ 90%]
+tests/test_phase26_ml.py::TestImpactPredictor::test_predict_before_fit_raises PASSED [ 91%]
+tests/test_phase26_ml.py::TestImpactPredictor::test_encode_unseen_labels PASSED [ 92%]
+tests/test_phase9_ingestion.py::Phase9IngestionTests::test_changed_resource_metadata_creates_new_immutable_payload PASSED [ 94%]
+tests/test_phase9_ingestion.py::Phase9IngestionTests::test_download_writes_checksum_manifest_and_validates PASSED [ 95%]
+tests/test_phase9_ingestion.py::Phase9IngestionTests::test_matching_payload_is_not_downloaded_again PASSED [ 96%]
+tests/test_phase9_ingestion.py::Phase9IngestionTests::test_road_restrictions_csv_validates_preamble_and_geometry_fields PASSED [ 97%]
+tests/test_phase9_ingestion.py::Phase9IngestionTests::test_road_restrictions_xml_validates_closures_and_locations PASSED [ 98%]
+tests/test_phase9_ingestion.py::Phase9IngestionTests::test_select_resource_requires_exact_verified_name_and_format PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\junbu\Documents\accessflow-toronto\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+.venv\Lib\site-packages\starlette\testclient.py:53
+  C:\Users\junbu\Documents\accessflow-toronto\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+tests/test_phase26_ml.py::TestImpactPredictor::test_fit_and_predict
+tests/test_phase26_ml.py::TestImpactPredictor::test_predict_returns_results
+tests/test_phase26_ml.py::TestImpactPredictor::test_save_and_load
+tests/test_phase26_ml.py::TestImpactPredictor::test_encode_unseen_labels
+  C:\Users\junbu\Documents\accessflow-toronto\.venv\Lib\site-packages\xgboost\training.py:200: UserWarning: [20:07:08] WARNING: C:\actions-runner\_work\xgboost\xgboost\src\learner.cc:794: 
+  Parameters: { "use_label_encoder" } are not used.
+  
+    bst.update(dtrain, iteration=i, fobj=obj)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 79 passed, 5 skipped, 6 warnings in 26.09s ==================
