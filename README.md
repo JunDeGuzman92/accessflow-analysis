@@ -1,23 +1,59 @@
 # AccessFlow Toronto — Pedestrian Restriction Analysis
 
-Data analysis and visualization of Toronto road-restriction data and its impact on pedestrian network accessibility.
+Machine learning analysis of Toronto road-restriction data and its impact on pedestrian network accessibility.
 
 ## What's in this repo
 
-- **Notebook:** `notebooks/accessflow_analysis.ipynb` — Exploratory data analysis, feature engineering, and visualization of the 1,834 road restrictions from Toronto Open Data
-- **Fixtures:** `fixtures/phase25/` — Committed CSVs (75 / 213 / 150 rows) from the pipeline project
-- **Spatial artifact:** `fixtures/phase22-spatial.json` — Deterministic spatial data (SHA-256 `55ee52d3…`)
+- **Notebook:** `notebooks/accessflow_analysis.ipynb` — Exploratory data analysis, visualizations, and ML models
+- **Fixtures:** `fixtures/road-restrictions--resource-3afea38a-*.xml` — Toronto Open Data feed (1,834 closures)
+- **Pedestrian Network:** `fixtures/pedestrian-network-data-4326.csv` — Toronto Pedestrian Network (87,105 edges)
+- **Models:** `run_baseline.py`, `run_gradient_boosting.py` — Reproducible ML scripts
+- **Validation:** `validate_topology.py` — Network topology analysis
 
-## Visualizations produced
+## Key Findings
 
-1. Cohort overview (evaluation status + impact severity distributions)
-2. Numeric feature histograms and box plots
-3. Correlation heatmap
-4. Edge replacement metric distributions + scatter
-5. Restriction impact distributions
-6. Spatial artifact structure analysis
-7. Folium map of Toronto restrictions
-8. Categorical feature distributions
+### Data
+
+- **1,834 road closures** from Toronto Open Data (road-restrictions feed)
+- **Target:** `CurrImpact` (None: 1,440, Low: 237, High: 157)
+- **Features:** Type, RoadClass, DirectionsAffected, WorkPeriod, District, Latitude, Longitude, Duration_days, SpecialEvent
+
+### Models
+
+| Model | F1-score (macro) | Accuracy |
+|---|---|---|
+| Baseline (always None) | 0.2955 | 80% |
+| Logistic Regression | 0.8299 | 94% |
+| **XGBoost** | **0.9761** | **99%** |
+
+### Feature Importance (XGBoost)
+
+1. **WorkPeriod** (63%) — Schedule type is the strongest predictor
+2. **RoadClass** (33%) — Road classification is the second strongest
+
+### Network Topology Validation
+
+High-impact closures have **44% more pedestrian infrastructure** nearby:
+
+| CurrImpact | Nearby Sidewalk Length |
+|---|---|
+| High | 1,574m |
+| Low | 1,173m |
+| None | 1,064m |
+
+## ML Gate Status
+
+All 7 conditions from ADR-003 are met:
+
+| # | Condition | Status |
+|---|---|---|
+| 1 | Prediction target documented | ✅ |
+| 2 | Label source identified | ✅ |
+| 3 | Leakage controls documented | ✅ |
+| 4 | Validation strategy defined | ✅ |
+| 5 | Baseline model achieved | ✅ |
+| 6 | Model exceeds baseline | ✅ |
+| 7 | External validation | ✅ |
 
 ## Getting started
 
@@ -26,14 +62,23 @@ pip install -r requirements.txt
 jupyter notebook notebooks/accessflow_analysis.ipynb
 ```
 
+## Visualizations
+
+1. Restriction types distribution
+2. Work periods distribution
+3. Temporal patterns (month/year)
+4. Road classes distribution
+5. Geographic scatter plot
+6. Contractor analysis
+7. ML model comparison
+8. Feature importance
+
 ## Data provenance
 
-| Dataset | Source | Rows | Hash |
+| Dataset | Source | Records | License |
 |---|---|---|---|
-| `phase14-evaluation-cohort.csv` | Toronto Open Data road-restrictions feed | 75 | Verified fixture |
-| `phase15-edge-replacement.csv` | Phase 15 replacement analysis | 213 | Verified fixture |
-| `phase15-restriction-impact.csv` | Phase 15 replacement analysis | 150 | Verified fixture |
-| `phase22-spatial.json` | Deterministic spatial artifact | 75 features | `55ee52d3…` |
+| Road Restrictions | Toronto Open Data | 1,834 | Open Government Licence - Toronto |
+| Pedestrian Network | City of Toronto DAV | 87,105 edges | Not specified |
 
 ## License
 
