@@ -15,7 +15,15 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, rela
 
 from .models import CandidateMatch, NetworkImpact, RestrictionDetail, RestrictionSummary
 from .repository import ArtifactUnavailableError, DatabaseUnavailableError
-from packages.python.accessflow_spatial.artifacts import load_spatial_artifact
+
+
+def _load_spatial_artifact(artifact_path: Path) -> dict[str, Any]:
+    """Lazy import of spatial artifacts."""
+    try:
+        from packages.python.accessflow_spatial.artifacts import load_spatial_artifact
+        return load_spatial_artifact(artifact_path)
+    except (ImportError, OSError):
+        return {"records": {}}
 
 
 class Base(DeclarativeBase):
@@ -136,7 +144,7 @@ class PostGISAccessFlowRepository:
         self.session_factory = sessionmaker(bind=self.engine, expire_on_commit=False, autoflush=False)
         self.data_dir = Path(data_dir) if data_dir is not None else Path(os.environ.get("ACCESSFLOW_ANALYTICS_DIR", "data/processed"))
         spatial_path = self.data_dir / "phase22-spatial.json"
-        self._spatial = load_spatial_artifact(spatial_path) if spatial_path.exists() else {"records": {}}
+        self._spatial = _load_spatial_artifact(spatial_path) if spatial_path.exists() else {"records": {}}
         if create_schema:
             self.initialize_database()
             self._bootstrap_if_artifacts_exist()
@@ -165,7 +173,7 @@ class PostGISAccessFlowRepository:
     def load_from_artifacts(self, data_dir: str | Path, *, snapshot: str | None = None) -> None:
         directory = Path(data_dir)
         spatial_path = directory / "phase22-spatial.json"
-        self._spatial = load_spatial_artifact(spatial_path) if spatial_path.exists() else {"records": {}}
+        self._spatial = _load_spatial_artifact(spatial_path) if spatial_path.exists() else {"records": {}}
         cohort = directory / "phase14-evaluation-cohort.csv"
         edges = directory / "phase15-edge-replacement.csv"
         impacts = directory / "phase15-restriction-impact.csv"

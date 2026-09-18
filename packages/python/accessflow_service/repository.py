@@ -4,10 +4,18 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, Any
 
 from .models import CandidateMatch, NetworkImpact, RestrictionDetail, RestrictionSummary
-from packages.python.accessflow_spatial.artifacts import load_spatial_artifact
+
+
+def _load_spatial_artifact(artifact_path: Path) -> dict[str, Any]:
+    """Lazy import of spatial artifacts to avoid pyproj DLL issues."""
+    try:
+        from packages.python.accessflow_spatial.artifacts import load_spatial_artifact
+        return load_spatial_artifact(artifact_path)
+    except (ImportError, OSError):
+        return {"features": []}
 
 
 class ArtifactUnavailableError(RuntimeError):
@@ -50,7 +58,7 @@ class CsvAccessFlowRepository:
         cohort = data_dir / "phase14-evaluation-cohort.csv"
         edges = data_dir / "phase15-edge-replacement.csv"
         impacts = data_dir / "phase15-restriction-impact.csv"
-        self._spatial = load_spatial_artifact(data_dir / "phase22-spatial.json") if (data_dir / "phase22-spatial.json").exists() else {"records": {}}
+        self._spatial = _load_spatial_artifact(data_dir / "phase22-spatial.json") if (data_dir / "phase22-spatial.json").exists() else {"records": {}}
         missing = [path.name for path in (cohort, edges, impacts) if not path.exists()]
         if missing:
             raise ArtifactUnavailableError("Required analytical artifacts are unavailable")
