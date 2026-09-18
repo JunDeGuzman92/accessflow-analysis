@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AccessFlow Operations Console</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand"><h1>AccessFlow</h1><p>Operations Console</p></div>
+        <nav aria-label="Primary navigation"><a class="nav-item active" href="#overview">Overview</a><a class="nav-item" href="#restrictions">Restrictions</a><a class="nav-item" href="#detail">Evidence detail</a></nav>
+        <p class="sidebar-note">Research-oriented candidate disruption evidence. Candidate segments are not confirmed closures.</p>
+      </aside>
+      <main class="content">
+        <header class="topbar" id="overview"><div><p class="eyebrow">Toronto operations workspace</p><h2>Accessibility disruption intelligence</h2></div><div class="status-wrap"><span class="status-dot" aria-hidden="true"></span><span data-role="status" class="status-banner loading">Loading</span></div></header>
+        <section class="overview-grid" data-role="overview" aria-label="Overview metrics"></section>
+        <section class="panel map-workspace" id="map-workspace">
+          <div class="panel-header"><div><p class="eyebrow">Spatial workspace</p><h3>Evidence map</h3></div><div class="map-controls"><button class="secondary-button" data-map-action="zoom-in">Zoom in</button><button class="secondary-button" data-map-action="zoom-out">Zoom out</button><button class="secondary-button" data-map-action="pan-left" aria-label="Pan map left">Left</button><button class="secondary-button" data-map-action="pan-right" aria-label="Pan map right">Right</button><button class="secondary-button" data-map-action="pan-up" aria-label="Pan map up">Up</button><button class="secondary-button" data-map-action="pan-down" aria-label="Pan map down">Down</button><button class="secondary-button" data-map-action="fit-selected">Fit selected</button><button class="secondary-button" data-map-action="reset">Reset extent</button></div></div>
+          <div class="map-legend" aria-label="Evidence legend"><span class="legend-item evidence-high">HIGH</span><span class="legend-item evidence-medium">MEDIUM</span><span class="legend-item evidence-low">LOW</span><span class="legend-item evidence-insufficient_evidence">INSUFFICIENT_EVIDENCE</span><span class="legend-item evidence-not_evaluated">NOT_EVALUATED</span><span class="legend-note">Shape indicates evidence type; color indicates evidence state only.</span></div>
+          <div class="map-canvas" data-role="map"></div>
+        </section>
+        <section class="panel" id="restrictions">
+          <div class="panel-header"><div><p class="eyebrow">Review queue</p><h3>Restrictions</h3></div><p class="muted">Search and sort represented records</p></div>
+          <div class="filters" role="search"><label>Search<input data-filter="query" placeholder="Restriction ID or evidence state" /></label><label>Evaluation<select data-filter="evaluationStatus"><option value="">All states</option><option>EVALUATED</option><option>NOT_EVALUATED</option></select></label><label>Confidence<select data-filter="evidenceConfidence"><option value="">All confidence</option><option>HIGH</option><option>MEDIUM</option><option>INSUFFICIENT_EVIDENCE</option></select></label><label>Match type<select data-filter="matchType"><option value="">All match types</option><option>INTERSECTS</option><option>WITHIN_DISTANCE</option></select></label></div>
+          <div class="table-wrap"><table><caption class="sr-only">Represented restrictions and evidence state</caption><thead><tr><th><button data-sort="restriction_id">Restriction</button></th><th><button data-sort="source_snapshot">Source snapshot</button></th><th><button data-sort="evaluation_status">Evaluation</button></th><th><button data-sort="evidence_confidence">Confidence</button></th><th><button data-sort="match_type">Match type</button></th><th><button data-sort="impact_severity">Impact</button></th><th>Replacement path</th></tr></thead><tbody data-role="restriction-table-body"></tbody></table></div>
+          <div class="pagination"><span data-role="page-label">Page 1</span><div><button class="secondary-button" data-action="previous-page">Previous</button><button class="secondary-button" data-action="next-page">Next</button></div></div>
+        </section>
+        <section class="panel detail-panel" id="detail" data-role="detail-panel"><p class="muted">Select a restriction to inspect its evidence.</p></section>
+        <section class="panel" id="predict">
+          <div class="panel-header"><div><p class="eyebrow">ML Predictions</p><h3>Predict Accessibility Impact</h3></div><p class="muted">Enter closure details to predict impact level</p></div>
+          <form id="predict-form" class="predict-form">
+            <div class="form-grid">
+              <label>Closure Type<select name="type" required><option value="CONSTRUCTION">Construction</option><option value="ROAD_CLOSED">Road Closed</option></select></label>
+              <label>Road Class<select name="road_class" required><option value="Major Arterial Road">Major Arterial</option><option value="Local Road">Local Road</option><option value="Minor Arterial Road">Minor Arterial</option><option value="Collector">Collector</option></select></label>
+              <label>Directions<select name="directions_affected" required><option value="ONE_DIRECTION">One Direction</option><option value="BOTH_DIRECTIONS">Both Directions</option></select></label>
+              <label>Work Period<select name="work_period" required><option value="Continuous">Continuous</option><option value="Daily">Daily</option><option value="Weekdays">Weekdays</option><option value="Weekends">Weekends</option></select></label>
+              <label>District<select name="district" required><option value="Toronto and East York">Toronto & East York</option><option value="Scarborough">Scarborough</option><option value="Etobicoke York">Etobicoke York</option><option value="North York">North York</option></select></label>
+              <label>Special Event<select name="special_event"><option value="No">No</option><option value="Yes">Yes</option></select></label>
+              <label>Latitude<input type="number" name="latitude" step="0.0001" value="43.6532" required /></label>
+              <label>Longitude<input type="number" name="longitude" step="0.0001" value="-79.3832" required /></label>
+              <label>Duration (days)<input type="number" name="duration_days" step="1" value="30" required /></label>
+            </div>
+            <button type="submit" class="primary-button">Predict Impact</button>
+          </form>
+          <div id="prediction-result" class="prediction-result" style="display:none;">
+            <h4>Prediction</h4>
+            <div class="result-grid">
+              <div class="result-item"><span class="result-label">Impact Level</span><span id="result-prediction" class="result-value">-</span></div>
+              <div class="result-item"><span class="result-label">Confidence</span><span id="result-confidence" class="result-value">-</span></div>
+            </div>
+            <div id="result-probabilities" class="probabilities"></div>
+          </div>
+        </section>
+        <section class="panel" id="live-updates">
+          <div class="panel-header"><div><p class="eyebrow">Real-time</p><h3>Live Updates</h3></div><span class="status-dot" id="ws-status"></span></div>
+          <div id="live-feed" class="live-feed"><p class="muted">Connecting to real-time feed...</p></div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
