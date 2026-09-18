@@ -9,7 +9,12 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request, WebSocket, 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from packages.python.accessflow_service import AccessFlowRepository, ArtifactUnavailableError, CsvAccessFlowRepository, DatabaseUnavailableError, PostGISAccessFlowRepository
+from packages.python.accessflow_service import AccessFlowRepository, ArtifactUnavailableError, CsvAccessFlowRepository, DatabaseUnavailableError
+
+try:
+    from packages.python.accessflow_service import PostGISAccessFlowRepository
+except (ImportError, OSError):
+    PostGISAccessFlowRepository = None
 
 from .schemas import (
     AnalyticsSummaryResponse, ErrorResponse, GeoJSONGeometry, HealthResponse,
@@ -31,6 +36,8 @@ def _repository_from_environment() -> AccessFlowRepository:
     backend = os.environ.get("ACCESSFLOW_REPOSITORY_BACKEND", "artifact").lower()
     data_dir = Path(os.environ.get("ACCESSFLOW_ANALYTICS_DIR", "data/processed"))
     if backend == "postgis":
+        if PostGISAccessFlowRepository is None:
+            raise ArtifactUnavailableError("PostGIS repository not available (pyproj DLL blocked)")
         return PostGISAccessFlowRepository.from_environment(data_dir=data_dir)
     return CsvAccessFlowRepository(data_dir)
 
