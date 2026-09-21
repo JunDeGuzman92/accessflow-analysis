@@ -982,6 +982,12 @@ def create_app(repository: AccessFlowRepository | None = None) -> FastAPI:
             explanation.method = "llm-enhanced-v1"
         return explanation
 
+    # Serve the Next.js static export (built into /app/static/) at the root.
+    # This must come AFTER all /api routes so it acts as a catch-all.
+    _static_dir = Path(__file__).resolve().parent.parent.parent / "static"
+    if _static_dir.is_dir():
+        app.mount("/", StaticFiles(directory=str(_static_dir), html=True), name="static")
+
     return app
 
 

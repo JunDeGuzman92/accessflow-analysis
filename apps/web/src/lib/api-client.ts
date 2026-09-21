@@ -15,7 +15,7 @@ export const API_BASE_URL: string =
   typeof globalThis !== "undefined" &&
   (globalThis as Record<string, unknown>).ACCESSFLOW_API_BASE_URL
     ? (globalThis as Record<string, unknown>).ACCESSFLOW_API_BASE_URL as string
-    : "http://127.0.0.1:8000";
+    : "";
 
 /** Martin tile server TileJSON endpoint for the city-wide 3D Massing layer.
  *  Uses 127.0.0.1 (like the API URL) rather than the `localhost` name, which
