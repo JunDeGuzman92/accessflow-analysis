@@ -104,7 +104,6 @@ class ImpactPredictor:
             learning_rate=0.1,
             random_state=42,
             subsample=0.8,
-            use_label_encoder=False,
             eval_metric="mlogloss",
         )
         self.model.fit(X, y)
@@ -116,7 +115,7 @@ class ImpactPredictor:
             numeric_features=self.numeric_cols,
             categorical_features=self.categorical_cols,
             training_samples=len(df),
-            f1_score=0.9761,  # From validation
+            f1_score=float(0.0),
         )
 
     def predict(self, df: pd.DataFrame) -> list[PredictionResult]:
@@ -165,31 +164,28 @@ class ImpactPredictor:
 
         return results
 
-    def save(self, path: Path) -> None:
+    def save(self, path: Path, provenance: dict | None = None) -> None:
         """Save model artifacts to a directory."""
         import json
         import pickle
 
         path.mkdir(parents=True, exist_ok=True)
 
-        # Save model
         with open(path / "model.pkl", "wb") as f:
             pickle.dump(self.model, f)
 
-        # Save scaler
         with open(path / "scaler.pkl", "wb") as f:
             pickle.dump(self.scaler, f)
 
-        # Save label encoders
         with open(path / "encoders.pkl", "wb") as f:
             pickle.dump(self.label_encoders, f)
 
-        # Save metadata
         metadata = {
             "feature_cols": self.feature_cols,
             "numeric_cols": self.numeric_cols,
             "categorical_cols": self.categorical_cols,
             "is_fitted": self._is_fitted,
+            "provenance": provenance or {},
         }
         with open(path / "metadata.json", "w") as f:
             json.dump(metadata, f, indent=2)

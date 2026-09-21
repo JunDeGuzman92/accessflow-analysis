@@ -4,28 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AccessFlow Operations Console</title>
+    <link rel="stylesheet" href="./vendor/maplibre-gl.css" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand"><h1>AccessFlow</h1><p>Operations Console</p></div>
-        <nav aria-label="Primary navigation"><a class="nav-item active" href="#overview">Overview</a><a class="nav-item" href="#restrictions">Restrictions</a><a class="nav-item" href="#detail">Evidence detail</a></nav>
+        <nav aria-label="Primary navigation"><a class="nav-item active" href="#overview">Overview</a><a class="nav-item" href="#restrictions">Restrictions</a><a class="nav-item" href="#predict">Predict</a><a class="nav-item" href="#detail">Evidence detail</a></nav>
         <p class="sidebar-note">Research-oriented candidate disruption evidence. Candidate segments are not confirmed closures.</p>
       </aside>
       <main class="content">
         <header class="topbar" id="overview"><div><p class="eyebrow">Toronto operations workspace</p><h2>Accessibility disruption intelligence</h2></div><div class="status-wrap"><span class="status-dot" aria-hidden="true"></span><span data-role="status" class="status-banner loading">Loading</span></div></header>
         <section class="overview-grid" data-role="overview" aria-label="Overview metrics"></section>
         <section class="panel map-workspace" id="map-workspace">
-          <div class="panel-header"><div><p class="eyebrow">Spatial workspace</p><h3>Evidence map</h3></div><div class="map-controls"><button class="secondary-button" data-map-action="zoom-in">Zoom in</button><button class="secondary-button" data-map-action="zoom-out">Zoom out</button><button class="secondary-button" data-map-action="pan-left" aria-label="Pan map left">Left</button><button class="secondary-button" data-map-action="pan-right" aria-label="Pan map right">Right</button><button class="secondary-button" data-map-action="pan-up" aria-label="Pan map up">Up</button><button class="secondary-button" data-map-action="pan-down" aria-label="Pan map down">Down</button><button class="secondary-button" data-map-action="fit-selected">Fit selected</button><button class="secondary-button" data-map-action="reset">Reset extent</button></div></div>
-          <div class="map-legend" aria-label="Evidence legend"><span class="legend-item evidence-high">HIGH</span><span class="legend-item evidence-medium">MEDIUM</span><span class="legend-item evidence-low">LOW</span><span class="legend-item evidence-insufficient_evidence">INSUFFICIENT_EVIDENCE</span><span class="legend-item evidence-not_evaluated">NOT_EVALUATED</span><span class="legend-note">Shape indicates evidence type; color indicates evidence state only.</span></div>
-          <div class="map-canvas" data-role="map"></div>
+          <div class="panel-header"><div><p class="eyebrow">Spatial workspace</p><h3>Evidence map</h3></div></div>
+          <div class="map-legend" aria-label="Evidence legend"><span class="legend-item evidence-high" data-filter-confidence="HIGH">HIGH</span><span class="legend-item evidence-medium" data-filter-confidence="MEDIUM">MEDIUM</span><span class="legend-item evidence-low" data-filter-confidence="LOW">LOW</span><span class="legend-item evidence-insufficient_evidence" data-filter-confidence="INSUFFICIENT_EVIDENCE">INSUFFICIENT_EVIDENCE</span><span class="legend-item evidence-not_evaluated" data-filter-confidence="NOT_EVALUATED">NOT_EVALUATED</span><span class="legend-note">Click a marker to inspect · <span class="kbd">↑</span><span class="kbd">↓</span> navigate · <span class="kbd">Esc</span> deselect · <span class="kbd">/</span> search</span></div>
+          <div id="maplibre-map" class="maplibre-canvas"></div>
         </section>
         <section class="panel" id="restrictions">
-          <div class="panel-header"><div><p class="eyebrow">Review queue</p><h3>Restrictions</h3></div><p class="muted">Search and sort represented records</p></div>
-          <div class="filters" role="search"><label>Search<input data-filter="query" placeholder="Restriction ID or evidence state" /></label><label>Evaluation<select data-filter="evaluationStatus"><option value="">All states</option><option>EVALUATED</option><option>NOT_EVALUATED</option></select></label><label>Confidence<select data-filter="evidenceConfidence"><option value="">All confidence</option><option>HIGH</option><option>MEDIUM</option><option>INSUFFICIENT_EVIDENCE</option></select></label><label>Match type<select data-filter="matchType"><option value="">All match types</option><option>INTERSECTS</option><option>WITHIN_DISTANCE</option></select></label></div>
-          <div class="table-wrap"><table><caption class="sr-only">Represented restrictions and evidence state</caption><thead><tr><th><button data-sort="restriction_id">Restriction</button></th><th><button data-sort="source_snapshot">Source snapshot</button></th><th><button data-sort="evaluation_status">Evaluation</button></th><th><button data-sort="evidence_confidence">Confidence</button></th><th><button data-sort="match_type">Match type</button></th><th><button data-sort="impact_severity">Impact</button></th><th>Replacement path</th></tr></thead><tbody data-role="restriction-table-body"></tbody></table></div>
+          <div class="panel-header"><div><p class="eyebrow">Review queue</p><h3>Restrictions</h3></div><div class="header-actions"><button class="secondary-button" id="export-csv" title="Export filtered results as CSV">Export CSV</button><button class="secondary-button" id="compare-btn" title="Compare selected restrictions" disabled>Compare (0)</button></div></div>
+          <div class="filters" role="search"><label>Search<input data-filter="query" placeholder="Restriction ID or evidence state" /></label><label>Evaluation<select data-filter="evaluationStatus"><option value="">All states</option><option>EVALUATED</option><option>NOT_EVALUATED</option></select></label><label>Confidence<select data-filter="evidenceConfidence"><option value="">All confidence</option><option>HIGH</option><option>MEDIUM</option><option>INSUFFICIENT_EVIDENCE</option></select></label><label>Match type<select data-filter="matchType"><option value="">All match types</option><option value="direct_intersection">Direct intersection</option><option value="proximity">Proximity</option></select></label></div>
+          <div class="table-wrap"><table><caption class="sr-only">Represented restrictions and evidence state</caption><thead><tr><th style="width:32px"><input type="checkbox" id="select-all" title="Select all on this page" /></option></th><th><button data-sort="restriction_id">Restriction</button></th><th><button data-sort="source_snapshot">Source snapshot</button></th><th><button data-sort="evaluation_status">Evaluation</button></th><th><button data-sort="evidence_confidence">Confidence</button></th><th><button data-sort="match_type">Match type</button></th><th><button data-sort="impact_severity">Impact</button></th><th><button data-sort="duration_hours">Duration</button></th><th>Replacement path</th></tr></thead><tbody data-role="restriction-table-body"></tbody></table></div>
           <div class="pagination"><span data-role="page-label">Page 1</span><div><button class="secondary-button" data-action="previous-page">Previous</button><button class="secondary-button" data-action="next-page">Next</button></div></div>
+        </section>
+        <section class="panel" id="compare-panel" style="display:none">
+          <div class="panel-header"><div><p class="eyebrow">Side-by-side</p><h3>Restriction Comparison</h3></div><button class="secondary-button" id="close-compare">Close</button></div>
+          <div id="compare-content" class="compare-grid"></div>
+        </section>
+        <section class="panel" id="time-panel">
+          <div class="panel-header"><div><p class="eyebrow">Temporal view</p><h3>Closure Duration Animation</h3></div></div>
+          <div class="time-controls">
+            <label>Speed<select id="anim-speed"><option value="2000">Slow</option><option value="1000" selected>Normal</option><option value="400">Fast</option></select></label>
+            <button class="secondary-button" id="anim-play">Play</button>
+            <button class="secondary-button" id="anim-pause">Pause</button>
+            <button class="secondary-button" id="anim-reset">Reset</button>
+          </div>
+          <div class="time-slider-wrap">
+            <span id="time-label" class="time-label">0 hours</span>
+            <input type="range" id="time-slider" min="0" max="100" value="0" class="time-slider" />
+            <span id="time-max" class="time-label">max</span>
+          </div>
+          <div class="time-stats"><span id="time-active-count">0</span> active closures at current time</div>
         </section>
         <section class="panel detail-panel" id="detail" data-role="detail-panel"><p class="muted">Select a restriction to inspect its evidence.</p></section>
         <section class="panel" id="predict">
@@ -59,6 +79,8 @@
         </section>
       </main>
     </div>
+    <script>globalThis.ACCESSFLOW_API_BASE_URL = 'http://127.0.0.1:8000';</script>
+    <script src="./vendor/maplibre-gl.js"></script>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

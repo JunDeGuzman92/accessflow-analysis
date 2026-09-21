@@ -1,0 +1,155 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: API — install, artifacts, routing graph, smoke test
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: packages/python
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Provision analytical artifacts from committed fixtures
+        run: |
+          mkdir -p data/processed data/raw
+          cp fixtures/phase25/phase14-evaluation-cohort.csv data/processed/
+          cp fixtures/phase25/phase15-edge-replacement.csv data/processed/
+          cp fixtures/phase25/phase15-restriction-impact.csv data/processed/
+          cp fixtures/phase22-spatial.json data/processed/phase22-spatial.json
+
+      - name: Generate restriction coordinates and location names from the feed snapshot
+        run: |
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          snapshots = sorted(Path("fixtures").glob("road-restrictions--resource-*.xml"))
+          assert snapshots, "road restrictions XML snapshot missing from fixtures/"
+          root = ET.parse(snapshots[0]).getroot()
+          coordinates = {}
+          locations = {}
+          for closure in root.findall("Closure"):
+              closure_id = closure.findtext("Id")
+              lat = closure.findtext("Latitude")
+              lon = closure.findtext("Longitude")
+              if not closure_id or lat is None or lon is None:
+                  continue
+              try:
+                  lng, latitude = float(lon), float(lat)
+              except ValueError:
+                  continue
+              if -180 <= lng <= 180 and -90 <= latitude <= 90:
+                  coordinates[closure_id] = [lng, latitude]
+              record = {
+                  "road": (closure.findtext("Road") or "").strip(),
+                  "name": (closure.findtext("Name") or "").strip(),
+                  "from_road": (closure.findtext("FromRoad") or "").strip(),
+                  "to_road": (closure.findtext("ToRoad") or "").strip(),
+              }
+              if any(record.values()):
+                  locations[closure_id] = record
+          assert coordinates, "no coordinates parsed from feed snapshot"
+          Path("data/processed/restriction-coordinates.json").write_text(
+              json.dumps(coordinates, indent=2), encoding="utf-8"
+          )
+          Path("data/processed/restriction-locations.json").write_text(
+              json.dumps(locations, indent=2), encoding="utf-8"
+          )
+          print(f"wrote {len(coordinates)} coordinates, {len(locations)} location names")
+          PY
+
+      - name: Download pedestrian network GeoPackage (hash-verified)
+        run: |
+          curl --fail --silent --show-error --location \
+            'https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/4b5c7a84-dea1-4137-875d-71d7f662c83f/resource/f5390504-c209-42d5-aebe-c79a7a9267bc/download/pedestrian-network-data-4326.gpkg' \
+            --output data/raw/pedestrian-network--resource-f5390504-c209-42d5-aebe-c79a7a9267bc.gpkg
+          test "$(sha256sum data/raw/pedestrian-network--resource-f5390504-c209-42d5-aebe-c79a7a9267bc.gpkg | cut -d ' ' -f 1)" = '278273f11898377f6887c5d83c0c169aa8e4ab17db6aa9a91abf7fc2522a0172'
+
+      - name: Build routing graph artifact
+        run: python scripts/build_routing_graph.py
+
+      - name: Smoke test routing graph artifact
+        run: |
+          python - <<'PY'
+          import pickle
+          from pathlib import Path
+          path = Path("data/processed/routing-graph.pkl")
+          assert path.exists(), "routing graph artifact missing"
+          data = pickle.loads(path.read_bytes())
+          assert data["schema"] == "routing-graph-v1"
+          assert data["edge_count"] > 80_000, f"unexpected edge count: {data['edge_count']}"
+          assert data["node_count"] > 60_000, f"unexpected node count: {data['node_count']}"
+          print(f"routing graph ok: {data['edge_count']} edges, {data['node_count']} nodes")
+          PY
+
+      - name: Boot API
+        run: |
+          python -m uvicorn apps.api.main:app --host 127.0.0.1 --port 8000 &
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:8000/health > /dev/null; then
+              echo "API ready"; exit 0
+            fi
+            sleep 1
+          done
+          echo "API failed to start"; exit 1
+
+      - name: Smoke test API endpoints
+        run: |
+          set -e
+          curl --silent --fail http://127.0.0.1:8000/health | grep -q '"ok"'
+          curl --silent --fail "http://127.0.0.1:8000/api/v1/restrictions?limit=5" | grep -q "restriction_id"
+          curl --silent --fail "http://127.0.0.1:8000/api/v1/analytics/summary" | grep -q "total_restrictions_represented"
+          curl --silent --fail "http://127.0.0.1:8000/api/v1/route?origin=-79.3832,43.6532&destination=-79.3800,43.6545" | grep -q '"reachable":true'
+          curl --silent --fail "http://127.0.0.1:8000/api/v1/ai/explain?overview=true" | grep -q "deterministic-rules-v1"
+          echo "all endpoint smoke tests passed"
+
+      - name: Verify auth hardening (token mode)
+        run: |
+          ACCESSFLOW_API_TOKEN=ci-test-token python -m uvicorn apps.api.main:app --host 127.0.0.1 --port 8001 &
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:8001/health > /dev/null; then break; fi
+            sleep 1
+          done
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:8001/api/v1/restrictions)" = "401"
+          test "$(curl --silent -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer ci-test-token' http://127.0.0.1:8001/api/v1/restrictions)" = "200"
+          echo "auth hardening verified"
+
+  web:
+    name: Web — typecheck, lint, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npx next build

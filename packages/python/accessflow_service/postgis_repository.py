@@ -258,6 +258,8 @@ class PostGISAccessFlowRepository:
             candidate_edge_count=record.candidate_edge_count,
             impact_evaluable=record.impact_evaluable,
             source_snapshot=record.source_snapshot,
+            match_type=getattr(record, 'match_type', None),
+            duration_hours=getattr(record, 'duration_hours', None),
         )
 
     def list_restrictions(self, *, offset: int, limit: int, evaluation_status: str | None, impact_severity: str | None, evidence_confidence: str | None) -> tuple[list[RestrictionSummary], int]:

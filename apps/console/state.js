@@ -12,6 +12,9 @@ export function createState() {
     selectedImpacts: [],
     page: 1,
     mapFeatures: [],
+    details: {},
+    matches: {},
+    impacts: {},
     filters: {
       query: '',
       evaluationStatus: '',

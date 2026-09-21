@@ -1,0 +1,27 @@
+{
+  "feature_cols": [
+    "Type",
+    "RoadClass",
+    "DirectionsAffected",
+    "WorkPeriod",
+    "District",
+    "Latitude",
+    "Longitude",
+    "Duration_days",
+    "SpecialEvent"
+  ],
+  "numeric_cols": [
+    "Latitude",
+    "Longitude",
+    "Duration_days"
+  ],
+  "categorical_cols": [
+    "Type",
+    "RoadClass",
+    "DirectionsAffected",
+    "WorkPeriod",
+    "District",
+    "SpecialEvent"
+  ],
+  "is_fitted": true
+}

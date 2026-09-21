@@ -1,0 +1,64 @@
+{
+  "schema": "poi-layers-v1",
+  "retrieved_at_utc": "2026-09-21T02:58:44.796984+00:00",
+  "publisher": "City of Toronto Open Data",
+  "sources": {
+    "bench": {
+      "dataset_title": "Street Furniture - Bench",
+      "dataset_url": "https://open.toronto.ca/dataset/street-furniture-bench/",
+      "license": "open-government-licence-toronto",
+      "resource_id": "269cae59-3ff0-4f42-880c-2554e76a2e95",
+      "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/20e06199-c6a6-4846-9a0c-2b6375283a0c/resource/269cae59-3ff0-4f42-880c-2554e76a2e95/download/street-furniture-bench-data-4326.geojson",
+      "feature_count": 2256
+    },
+    "street_washroom": {
+      "dataset_title": "Street Furniture - Automated Public Washroom",
+      "dataset_url": "https://open.toronto.ca/dataset/street-furniture-public-washroom/",
+      "license": "License not specified",
+      "resource_id": "dd72c5f7-b474-46ac-b934-9b5a4781393b",
+      "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/821fed42-92e5-4a49-8684-394c1423b78a/resource/dd72c5f7-b474-46ac-b934-9b5a4781393b/download/public-washroom-data-4326.geojson",
+      "feature_count": 4
+    },
+    "park_washroom": {
+      "dataset_title": "Park Washroom Facilities",
+      "dataset_url": "https://open.toronto.ca/dataset/washroom-facilities/",
+      "license": "License not specified",
+      "resource_id": "8a9905cf-1b5b-49ca-8359-ac7971099b24",
+      "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/394b9f09-d5d6-43dc-a7a0-660c99fc2318/resource/8a9905cf-1b5b-49ca-8359-ac7971099b24/download/washroom-facilities-4326.geojson",
+      "feature_count": 355
+    },
+    "cooling": {
+      "dataset_title": "Air Conditioned and Cool Spaces (Heat Relief Network)",
+      "dataset_url": "https://open.toronto.ca/dataset/air-conditioned-and-cool-spaces-heat-relief-network/",
+      "license": "License not specified",
+      "resource_id": "f0d66bc3-16cb-4491-97af-0fae10913666",
+      "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/4aab06c4-9689-4e2c-9476-18ffee312640/resource/f0d66bc3-16cb-4491-97af-0fae10913666/download/air-conditioned-and-cool-spaces-4326.geojson",
+      "feature_count": 585
+    },
+    "library": {
+      "dataset_title": "Library Branch General Information",
+      "dataset_url": "https://open.toronto.ca/dataset/library-branch-general-information/",
+      "license": "License not specified",
+      "resource_id": "5f4950b4-c727-4e54-8d0d-972e198268d6",
+      "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/f5aa9b07-da35-45e6-b31f-d6790eb9bd9b/resource/5f4950b4-c727-4e54-8d0d-972e198268d6/download/tpl-branch-general-information-4326.geojson",
+      "feature_count": 101
+    },
+    "community": {
+      "dataset_title": "Association of Community Centres",
+      "dataset_url": "https://open.toronto.ca/dataset/association-of-community-centres/",
+      "license": "License not specified",
+      "resource_id": "b478253e-26b3-4882-b1e8-d1bfdab28db2",
+      "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/fe641905-9942-4a00-aceb-191149ad4905/resource/b478253e-26b3-4882-b1e8-d1bfdab28db2/download/community-centres-4326.geojson",
+      "feature_count": 10
+    },
+    "transit": {
+      "dataset_title": "TTC Routes and Schedules",
+      "dataset_url": "https://open.toronto.ca/dataset/ttc-routes-and-schedules/",
+      "license": "License not specified",
+      "resource_id": "cfb6b2b8-6191-41e3-bda1-b175c51148cb",
+      "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7795b45e-e65a-4465-81fc-c36b9dfff169/resource/cfb6b2b8-6191-41e3-bda1-b175c51148cb/download/opendata_ttc_schedules.zip",
+      "feature_count": 9402
+    }
+  },
+  "feature_count": 12713
+}
