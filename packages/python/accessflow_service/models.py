@@ -15,13 +15,14 @@ class RestrictionSummary:
     candidate_edge_count: int
     impact_evaluable: bool
     source_snapshot: str
+    match_type: str | None
+    duration_hours: float | None
 
 
 @dataclass(frozen=True)
 class RestrictionDetail(RestrictionSummary):
     valid_restriction_polyline: bool
     fallback_geometry_used: bool
-    duration_hours: float | None
     reason_codes: tuple[str, ...]
     limitations: tuple[str, ...]
     restriction_geometry: dict[str, Any] | None

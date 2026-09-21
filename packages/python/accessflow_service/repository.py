@@ -15,7 +15,7 @@ def _load_spatial_artifact(artifact_path: Path) -> dict[str, Any]:
         from packages.python.accessflow_spatial.artifacts import load_spatial_artifact
         return load_spatial_artifact(artifact_path)
     except (ImportError, OSError):
-        return {"features": []}
+        return {"records": {}}
 
 
 class ArtifactUnavailableError(RuntimeError):
@@ -59,6 +59,18 @@ class CsvAccessFlowRepository:
         edges = data_dir / "phase15-edge-replacement.csv"
         impacts = data_dir / "phase15-restriction-impact.csv"
         self._spatial = _load_spatial_artifact(data_dir / "phase22-spatial.json") if (data_dir / "phase22-spatial.json").exists() else {"records": {}}
+        coord_path = data_dir / "restriction-coordinates.json"
+        if coord_path.exists():
+            import json as _json
+            self._coordinates: dict[str, list[float]] = _json.loads(coord_path.read_text(encoding="utf-8"))
+        else:
+            self._coordinates = {}
+        locations_path = data_dir / "restriction-locations.json"
+        if locations_path.exists():
+            import json as _json
+            self._locations: dict[str, dict[str, str]] = _json.loads(locations_path.read_text(encoding="utf-8"))
+        else:
+            self._locations = {}
         missing = [path.name for path in (cohort, edges, impacts) if not path.exists()]
         if missing:
             raise ArtifactUnavailableError("Required analytical artifacts are unavailable")
@@ -68,9 +80,23 @@ class CsvAccessFlowRepository:
             self._edges = list(csv.DictReader(source))
         with impacts.open(encoding="utf-8", newline="") as source:
             self._impacts = list(csv.DictReader(source))
+        self._dominant_match_type: dict[str, str] = {}
+        from collections import Counter
+        restriction_match_counts: dict[str, Counter] = {}
+        for row in self._edges:
+            rid = row["restriction_id"]
+            mt = row.get("match_type", "")
+            if rid not in restriction_match_counts:
+                restriction_match_counts[rid] = Counter()
+            if mt:
+                restriction_match_counts[rid][mt] += 1
+        for rid, counter in restriction_match_counts.items():
+            if counter:
+                self._dominant_match_type[rid] = counter.most_common(1)[0][0]
 
     def _summary(self, row: dict[str, str]) -> RestrictionSummary:
-        return RestrictionSummary(row["restriction_id"], row["evaluation_status"], row["impact_severity"], row["evidence_confidence"], int(row["candidate_edge_count"]), _boolean(row["impact_evaluable"]), row["source_snapshot"])
+        rid = row["restriction_id"]
+        return RestrictionSummary(rid, row["evaluation_status"], row["impact_severity"], row["evidence_confidence"], int(row["candidate_edge_count"]), _boolean(row["impact_evaluable"]), row["source_snapshot"], self._dominant_match_type.get(rid), _number(row.get("duration_hours")))
 
     def list_restrictions(self, *, offset: int, limit: int, evaluation_status: str | None, impact_severity: str | None, evidence_confidence: str | None) -> tuple[list[RestrictionSummary], int]:
         records = [self._summary(row) for row in self._restrictions.values()]
@@ -84,7 +110,7 @@ class CsvAccessFlowRepository:
             return None
         summary = self._summary(row)
         spatial = self._spatial["records"].get(restriction_id, {})
-        return RestrictionDetail(**summary.__dict__, valid_restriction_polyline=_boolean(row["valid_restriction_polyline"]), fallback_geometry_used=_boolean(row["fallback_geometry_used"]), duration_hours=_number(row["duration_hours"]), reason_codes=_codes(row["reason_codes"]), limitations=_codes(row["limitations"]), restriction_geometry=spatial.get("restriction_geometry"))
+        return RestrictionDetail(**summary.__dict__, valid_restriction_polyline=_boolean(row["valid_restriction_polyline"]), fallback_geometry_used=_boolean(row["fallback_geometry_used"]), reason_codes=_codes(row["reason_codes"]), limitations=_codes(row["limitations"]), restriction_geometry=spatial.get("restriction_geometry"))
 
     def get_matches(self, restriction_id: str) -> list[CandidateMatch] | None:
         if restriction_id not in self._restrictions:

@@ -22,3 +22,22 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Logs
+*.log
+
+# Node
+node_modules/
+.next/
+out/
+
+# Test artifacts
+test-*.png
+
+# Recorded videos
+Recorded Videos/
+
+# Large data files (use Git LFS or external storage)
+data/raw/
+data/processed/massing-full.geojson
+data/processed/massing.mbtiles

@@ -34,7 +34,6 @@ export function buildOverviewMetrics(summary, restrictions = []) {
   const impactSeverityDistribution = summary?.impact_severity_distribution ?? {};
 
   const replacementPathRows = restrictions.filter((item) => item.replacement_path_available === true || item.replacement_path_state === 'AVAILABLE');
-  const connectivityLossCases = restrictions.filter((item) => item.connectivity_loss === true || item.impact_severity === 'SEVERE').length;
 
   return {
     totalRestrictions,
@@ -44,7 +43,6 @@ export function buildOverviewMetrics(summary, restrictions = []) {
     evidenceConfidenceDistribution,
     impactSeverityDistribution,
     replacementPathAvailability: replacementPathRows.length,
-    connectivityLossCases,
   };
 }
 
@@ -105,9 +103,10 @@ export function mapRestrictionList(response) {
     impact_evaluable: Boolean(item.impact_evaluable),
     source_snapshot: item.provenance?.source_snapshot ?? null,
     match_type: item.match_type ?? null,
-    connectivity_loss: item.connectivity_loss ?? null,
     replacement_path_available: false,
     replacement_path_state: 'UNAVAILABLE',
+    coordinates: item.coordinates ?? null,
+    duration_hours: item.duration_hours ?? null,
   }));
 }
 
@@ -128,7 +127,7 @@ export function mapRestrictionDetail(response) {
     provenance: response.provenance ?? null,
     source_snapshot: response.provenance?.source_snapshot ?? null,
     source_publisher: response.provenance?.publisher ?? null,
-    temporal_information: response.temporal_information ?? null,
+    temporal_information: null,
   };
 }
 
@@ -198,12 +197,17 @@ export function buildMapFeatures({ restrictions = [], details = {}, matches = {}
       restrictionId: restriction.restriction_id,
       kind: 'restriction',
       evidenceConfidence: restriction.evidence_confidence,
+      evaluationStatus: restriction.evaluation_status,
+      matchType: restriction.match_type,
+      durationHours: restriction.duration_hours,
       geometry: detail.restriction_geometry,
     }] : [];
     const matchFeatures = (matches[restriction.restriction_id] ?? []).filter((match) => isUsableGeoJson(match.geometry)).map((match) => ({
       restrictionId: restriction.restriction_id,
       kind: match.match_type === 'INTERSECTS' ? 'direct-match' : 'proximity-match',
       evidenceConfidence: match.evidence_confidence,
+      evaluationStatus: restriction.evaluation_status,
+      matchType: match.match_type,
       geometry: match.geometry,
     }));
     return [...restrictionGeometry, ...matchFeatures];

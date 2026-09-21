@@ -42,6 +42,14 @@ def normalize_geometry(value: Any) -> dict[str, Any] | None:
     return None
 
 
+class RestrictionLocation(BaseModel):
+    """Publisher-provided place names for a restriction, verbatim from the source feed."""
+    road: str | None = Field(None, description="Road name from the source feed (e.g. 'King St W')")
+    name: str | None = Field(None, description="Full location description from the source feed")
+    from_road: str | None = Field(None, description="Cross-street the restriction starts from")
+    to_road: str | None = Field(None, description="Cross-street the restriction ends at")
+
+
 class RestrictionSummaryResponse(BaseModel):
     restriction_id: str
     evaluation_status: str
@@ -50,6 +58,10 @@ class RestrictionSummaryResponse(BaseModel):
     candidate_edge_count: int
     impact_evaluable: bool
     provenance: Provenance
+    coordinates: list[float] | None = Field(None, description="[longitude, latitude] from source XML feed")
+    location: RestrictionLocation | None = Field(None, description="Publisher-provided place names from the source feed")
+    match_type: str | None = Field(None, description="Dominant match type across candidate edges (direct_intersection or proximity)")
+    duration_hours: float | None = Field(None, description="Closure duration in hours from source data")
 
 
 class RestrictionDetailResponse(RestrictionSummaryResponse):
@@ -155,3 +167,65 @@ class PredictionResponse(BaseModel):
     prediction: str = Field(..., description="Predicted impact level (None, Low, High)")
     confidence: float = Field(..., description="Prediction confidence (0-1)")
     probabilities: dict[str, float] = Field(..., description="Probability for each class")
+
+
+class WalkEvent(BaseModel):
+    """A real route feature at a distance along the path, from source network attributes."""
+    at_m: float = Field(..., description="Distance along the path in metres where this feature occurs")
+    kind: Literal["sidewalk_change", "crosswalk", "signal"] = Field(..., description="Feature category from the source network")
+    label: str = Field(..., description="Human-readable feature description from the source data")
+
+
+class RoutePath(BaseModel):
+    geometry: GeoJSONGeometry | None = Field(None, description="WGS84 GeoJSON LineString of the path; null when unreachable")
+    distance_m: float = Field(..., description="Total path length in metres (haversine approximation)")
+    edge_count: int = Field(..., description="Number of pedestrian network edges on the path")
+    barriers_on_path: int = Field(..., description="Candidate barrier segments this path crosses")
+    walk_events: list[WalkEvent] = Field(default_factory=list, description="Real route features (sidewalks, crosswalks, signals) at distances along the path")
+
+
+class RouteComparison(BaseModel):
+    added_distance_m: float | None = Field(None, description="Recommended minus baseline distance; null when no recommended path")
+    distance_ratio: float | None = Field(None, description="Recommended divided by baseline distance; null when no recommended path")
+    avoided_barrier_count: int = Field(..., description="Barrier segments on the baseline path that the recommended path avoids")
+
+
+class RouteCharacter(BaseModel):
+    """Real sidewalk/road attributes of the path edges, aggregated from the source network."""
+    sidewalk_counts: dict[str, int] = Field(..., description="Count of path edges per sidewalk description from the source data")
+    road_type_counts: dict[str, int] = Field(..., description="Count of path edges per road type from the source data")
+    crosswalk_count: int = Field(..., description="Path edges flagged as crosswalks in the source data")
+    pedestrian_signal_count: int = Field(..., description="Path edges with a pedestrian signal (PX) type in the source data")
+
+
+class RouteResponse(BaseModel):
+    """Accessible routing evidence between two snapped pedestrian-network nodes."""
+    origin: list[float]
+    destination: list[float]
+    origin_node: int
+    destination_node: int
+    avoid: str | None = Field(None, description="Restriction id or 'all' whose candidate segments were avoided")
+    baseline: RoutePath
+    recommended: RoutePath | None = Field(None, description="Disruption-avoiding path; null when no path exists after avoidance")
+    comparison: RouteComparison | None = None
+    route_character: RouteCharacter | None = Field(None, description="Aggregated sidewalk/road attributes of the walked path (recommended when present, else baseline)")
+    reachable: bool = Field(..., description="False when origin and destination are in different network components")
+    limitations: list[str]
+    provenance: Provenance
+
+
+class ExplanationCitation(BaseModel):
+    restriction_id: str | None = Field(None, description="Restriction the cited evidence belongs to")
+    fields: list[str] = Field(default_factory=list, description="Artifact fields the statement is grounded in")
+
+
+class ExplanationResponse(BaseModel):
+    """Evidence-grounded explanation. Generated deterministically from artifacts; optionally rephrased by a configured LLM that receives the same facts and may not add new ones."""
+    kind: Literal["restriction", "route", "overview"]
+    headline: str
+    narrative: str
+    bullets: list[str] = Field(default_factory=list)
+    citations: list[ExplanationCitation] = Field(default_factory=list)
+    method: str = Field(..., description="deterministic-rules-v1 or llm-enhanced-v1")
+    limitations: list[str]
+    provenance: Provenance

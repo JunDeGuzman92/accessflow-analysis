@@ -8,7 +8,11 @@ services:
     environment:
       - ACCESSFLOW_REPOSITORY_BACKEND=artifact
       - ACCESSFLOW_MODEL_DIR=/app/data/models/impact
-      - ACCESSFLOW_CORS_ORIGINS=http://localhost:3000,http://localhost:8080
+      - ACCESSFLOW_CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:8080
+      # Set ACCESSFLOW_API_TOKEN to require bearer auth on /api/v1/* (leave empty for open dev mode)
+      - ACCESSFLOW_API_TOKEN=
+      - ACCESSFLOW_RATE_LIMIT_REQUESTS=240
+      - ACCESSFLOW_RATE_LIMIT_WINDOW=60
     volumes:
       - ./data:/app/data
     restart: unless-stopped
