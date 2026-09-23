@@ -1,0 +1,21 @@
+# Render Blueprint: https://render.com/docs/blueprints
+# Deploy with: New > Blueprint > select this repository
+services:
+  - type: web
+    name: accessflow-toronto
+    runtime: docker
+    dockerfilePath: ./Dockerfile.fly
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ACCESSFLOW_REPOSITORY_BACKEND
+        value: artifact
+      - key: ACCESSFLOW_MODEL_DIR
+        value: /app/data/models/impact
+      - key: ACCESSFLOW_CORS_ORIGINS
+        value: "*"
+      - key: ACCESSFLOW_RATE_LIMIT_REQUESTS
+        value: "240"
+      - key: ACCESSFLOW_RATE_LIMIT_WINDOW
+        value: "60"
